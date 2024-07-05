@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  api_dev1:
+    build:
+      context: ./Back_end  # Context for FastAPI build
+      dockerfile: Dockerfile.dev  # Dockerfile for FastAPI
+    ports:
+      - "8007:8000"  # Map FastAPI running on port 8000 to host port 8000
+    networks:
+      - my-api-net
+    environment:
+      - DATABASE_URL=postgresql://todos_owner:od0gPGeTRn3U@ep-raspy-salad-a5rggins.us-east-2.aws.neon.tech/Auth_Sys?sslmode=require
+
+  api_dev2:
+    build:
+      context: ./Front_end  # Context for Streamlit build
+      dockerfile: Dockerfile.dev  # Dockerfile for Streamlit
+    depends_on:
+      - api_dev1  # Ensure Streamlit waits for FastAPI to be ready
+    ports:
+      - "8507:8501"  # Map Streamlit default port to host port 8501
+    networks:
+      - my-api-net
+    environment:
+      - API_URL=http://api_dev1:8000  # Environment variable to access FastAPI
+
+
+networks:
+  my-api-net:
+    driver: bridge  # Use bridge driver for network
